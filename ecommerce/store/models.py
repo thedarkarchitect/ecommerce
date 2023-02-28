@@ -30,17 +30,38 @@ class Product(models.Model):
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)#one customer makes many orders so this is a one to Many relationship 
     date_ordered = models.DateTimeField(auto_now_add=True)
-    complete = models.BooleanField(default=False)
+    complete = models.BooleanField(default=False, null=True, blank=False)
     transaction_id = models.CharField(max_length=100, null=True)
 
     def __str__(self)->str:
         return str(self.id)
+    
+    #we shall use the @property decorator to make those methods attributes of this model
+    #to get the cart items and total price of items in cart 
+    @property
+    def get_cart_total(self):#this returns the total of all the items in the cart
+        orderitems = self.orderitem_set.all()#this gives you access to all the orderitems in your models
+        total = sum([item.get_total for item in orderitems])#get total is got from orderitems model that why we set it first so we can use it here
+        return total
+    
+    @property
+    def get_cart_items(self):
+        orderitems = self.orderitem_set.all()#this gives you access to all the orderitems in your models
+        total = sum([item.quantity for item in orderitems])
+        return total
     
 class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
+
+    #we need to get total price of ordered items and total price
+    #we shall use the @property decorator to make those methods attributes of this model 
+    @property
+    def get_total(self):
+        total = self.product.price * self.quantity
+        return total
 
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
