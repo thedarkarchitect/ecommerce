@@ -14,10 +14,18 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.FloatField()
     digital = models.BooleanField(default=False, null=True, blank=True)
-    # image = models.ImageField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
+    
+    @property #this is going to allow us to access the method below as an attribute of the model
+    def imageURL(self):
+        try:
+            url = self.image.url
+        except:
+            url = ''
+        return url
     
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)#one customer makes many orders so this is a one to Many relationship 
