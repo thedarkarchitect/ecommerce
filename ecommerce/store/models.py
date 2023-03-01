@@ -13,7 +13,7 @@ class Customer(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200)
     price = models.FloatField()
-    digital = models.BooleanField(default=False, null=True, blank=True)
+    digital = models.BooleanField(default=False, null=True, blank=True)#by default all items are physciall itemss
     image = models.ImageField(null=True, blank=True)
 
     def __str__(self) -> str:
@@ -38,6 +38,15 @@ class Order(models.Model):
     
     #we shall use the @property decorator to make those methods attributes of this model
     #to get the cart items and total price of items in cart 
+    @property
+    def shipping(self):
+        shipping = False #shipping starts off as false so no shipping
+        orderitems = self.orderitem_set.all()#query all order items
+        for i in orderitems:
+            if i.product.digital == False: #checking if the product is physicall meaning it needs shipping
+                shipping = True #then if it is a physicall product it will be allowed to ship
+        return shipping
+    
     @property
     def get_cart_total(self):#this returns the total of all the items in the cart
         orderitems = self.orderitem_set.all()#this gives you access to all the orderitems in your models
