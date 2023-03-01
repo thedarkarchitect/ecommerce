@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import *
 import json
+import datetime
 
 
 # Create your views here.
@@ -94,3 +95,31 @@ def updateItem(request):
 
     return JsonResponse('Item was added', safe=False)#return this to the template whenever a function is called 
     
+def processOrder(request):
+    transaction_id = datetime.datetime.now().timestamp()
+    data = json.loads(request.body)
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        total = float(data['form']['total'])
+        order.transaction_id = transaction_id
+
+        #user will not be able to manipulate total, this make sure cart total matches the paypal total
+        if total == order.get_cart_total:
+            order.complete = True
+        order.save()
+
+        if order.shipping == True:
+            ShippingAddress.objects.create(#this will set the values of the shipping attributes
+                customer=customer,
+                order=order,
+                address=data['shipping']['address'],#this is from the js side
+                city=data['shipping']['city'],
+                state=data['shipping']['state'],
+                zipcode=data['shipping']['zipcode']
+            )
+    else:
+        print('User is not logged in..')
+
+    return JsonResponse('Payment submitted..', safe=False)#this work after payment made
