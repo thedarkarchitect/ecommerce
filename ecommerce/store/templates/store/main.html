@@ -11,6 +11,24 @@
     <script type="text/javascript">
         // this gets the user type who is on the page and what type of user it is, is determined in cart.js
         var user = '{{ request.user }}'
+
+        function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
     </script>
 
     <title>DuKA..</title>
@@ -34,7 +52,7 @@
                         <img id="cart-icon"  src="{% static 'images/cart.png' %}">
                     </a>
                 </div>
-                <p id="cart-total">0</p>
+                <p id="cart-total">{{ cartItems }}</p>
             </div>
         </div>
     </nav>
