@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from .models import *
 import json
 import datetime
-
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def store(request):
@@ -94,7 +94,8 @@ def updateItem(request):
         orderItem.delete()
 
     return JsonResponse('Item was added', safe=False)#return this to the template whenever a function is called 
-    
+
+@csrf_exempt
 def processOrder(request):
     transaction_id = datetime.datetime.now().timestamp()
     data = json.loads(request.body)

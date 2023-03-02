@@ -12,7 +12,7 @@
         // this gets the user type who is on the page and what type of user it is, is determined in cart.js
         var user = '{{ request.user }}'
 
-        function getCookie(name) {
+        function getToken(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
             const cookies = document.cookie.split(';');
@@ -27,7 +27,34 @@
         }
         return cookieValue;
     }
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = getToken('csrftoken');
+
+    function getCookie(name){
+        //Split cookie string and get all individual name=value paris in an array
+        var cookieArr = document.cookie.split(";");
+
+        //loop thriugh the array elements
+        for(var i = 0; i < cookieArr.length; i++){
+            var cookiePair = cookieArr[i].split("=");
+
+            //remove whitespace at the begining of the cookie name and compare it with the given string
+            if(name == cookiePair[0].trim()){
+                //Decode the cookie value and return
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+
+        //Return null if not found
+        return null;
+    }
+    var cart = JSON.parse(getCookie('cart'))
+
+    if (cart == undefined){
+        cart = {}
+        console.log('Cart was created!',  cart)
+        document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+    }
+    console.log('Cart: ',cart)
 
     </script>
 
